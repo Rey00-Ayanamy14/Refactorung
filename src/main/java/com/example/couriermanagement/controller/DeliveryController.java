@@ -61,30 +61,41 @@ public class DeliveryController {
     @GetMapping
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(
-        summary = "Получить список доставок",
-        description = "Получение списка доставок с фильтрацией. Доступно только для менеджера"
+        summary = "Поиск доставок с фильтрацией",
+        description = """
+            Поиск и фильтрация доставок по различным критериям. 
+            Доступно только для менеджера.
+            
+            Параметры фильтрации:
+            - date: фильтр по дате доставки
+            - courierId: фильтр по ID курьера
+            - status: фильтр по статусу доставки
+            
+            Все параметры необязательные. Если параметры не указаны, 
+            возвращаются все доставки.
+            """
     )
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200", description = "Список доставок"),
+            @ApiResponse(responseCode = "200", description = "Список найденных доставок"),
             @ApiResponse(responseCode = "403", description = "Доступ запрещено")
         }
     )
-    public ResponseEntity<List<DeliveryDto>> getAllDeliveries(
-        @Parameter(description = "Фильтр по дате", example = "2025-01-30")
+    public ResponseEntity<List<DeliveryDto>> searchDeliveries(
+        @Parameter(description = "Фильтр по дате доставки (YYYY-MM-DD)", example = "2025-01-30")
         @RequestParam(required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate date,
 
         @Parameter(description = "Фильтр по ID курьера", example = "1")
-        @RequestParam(name = "courier_id", required = false)
+        @RequestParam(required = false)
         Long courierId,
 
-        @Parameter(description = "Фильтр по статусу")
+        @Parameter(description = "Фильтр по статусу доставки")
         @RequestParam(required = false)
         DeliveryStatus status
     ) {
-        List<DeliveryDto> deliveries = deliveryService.getAllDeliveries(date, courierId, status);
+        List<DeliveryDto> deliveries = deliveryService.searchDeliveries(date, courierId, status);
         return ResponseEntity.ok(deliveries);
     }
 
