@@ -1,5 +1,6 @@
 package com.example.couriermanagement.controller;
 
+import com.example.couriermanagement.constants.BusinessRulesConstants;
 import com.example.couriermanagement.dto.DeliveryDto;
 import com.example.couriermanagement.dto.request.DeliveryRequest;
 import com.example.couriermanagement.dto.request.GenerateDeliveriesRequest;
@@ -47,7 +48,7 @@ public class DeliveryController {
         value = {
             @ApiResponse(responseCode = "200", description = "Доставки успешно сгенерированы"),
             @ApiResponse(responseCode = "400", description = "Ошибка при генерации"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            @ApiResponse(responseCode = "403", description = "Доступ запрещено")
         }
     )
     public ResponseEntity<GenerateDeliveriesResponse> generateDeliveries(
@@ -66,7 +67,7 @@ public class DeliveryController {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200", description = "Список доставок"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            @ApiResponse(responseCode = "403", description = "Доступ запрещено")
         }
     )
     public ResponseEntity<List<DeliveryDto>> getAllDeliveries(
@@ -97,7 +98,7 @@ public class DeliveryController {
         value = {
             @ApiResponse(responseCode = "201", description = "Доставка создана"),
             @ApiResponse(responseCode = "400", description = "Ошибка валидации"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            @ApiResponse(responseCode = "403", description = "Доступ запрещено")
         }
     )
     public ResponseEntity<DeliveryDto> createDelivery(
@@ -130,7 +131,9 @@ public class DeliveryController {
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(
         summary = "Обновить доставку",
-        description = "Доступно только для менеджера. Нельзя редактировать за 3 дня до доставки"
+        description = """
+            Доступно только для менеджеру. 
+            """ + BusinessRulesConstants.DELIVERY_EDIT_RULE_DESCRIPTION
     )
     @ApiResponses(
         value = {
@@ -153,7 +156,9 @@ public class DeliveryController {
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(
         summary = "Удалить доставку",
-        description = "Доступно только для менеджера. Нельзя удалять за 3 дня до доставки"
+        description = """
+            Доступно только для менеджеру. 
+            """ + BusinessRulesConstants.DELIVERY_EDIT_RULE_DESCRIPTION
     )
     @ApiResponses(
         value = {
