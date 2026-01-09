@@ -3,9 +3,9 @@ package com.example.couriermanagement.controller;
 import com.example.couriermanagement.constants.BusinessRulesConstants;
 import com.example.couriermanagement.dto.DeliveryDto;
 import com.example.couriermanagement.dto.request.DeliveryRequest;
+import com.example.couriermanagement.dto.request.DeliverySearchCriteria;
 import com.example.couriermanagement.dto.request.GenerateDeliveriesRequest;
 import com.example.couriermanagement.dto.response.GenerateDeliveriesResponse;
-import com.example.couriermanagement.entity.DeliveryStatus;
 import com.example.couriermanagement.service.DeliveryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,13 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -64,38 +62,27 @@ public class DeliveryController {
         summary = "Поиск доставок с фильтрацией",
         description = """
             Поиск и фильтрация доставок по различным критериям. 
-            Доступно только для менеджера.
+            Доступно только для менеджеру.
             
-            Параметры фильтрации:
-            - date: фильтр по дате доставки
-            - courierId: фильтр по ID курьера
-            - status: фильтр по статусу доставки
+            Критерии фильтрации:
+            - deliveryDate: дата доставки (опционально)
+            - courierId: идентификатор курьера (опционально)
+            - status: статус доставки (опционально)
             
-            Все параметры необязательные. Если параметры не указаны, 
-            возвращаются все доставки.
+            Пример: /deliveries?deliveryDate=2025-01-30&courierId=1&status=IN_PROGRESS
             """
     )
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200", description = "Список найденных доставок"),
+            @ApiResponse(responseCode = "400", description = "Ошибка валидации критериев поиска"),
             @ApiResponse(responseCode = "403", description = "Доступ запрещено")
         }
     )
     public ResponseEntity<List<DeliveryDto>> searchDeliveries(
-        @Parameter(description = "Фильтр по дате доставки (YYYY-MM-DD)", example = "2025-01-30")
-        @RequestParam(required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        LocalDate date,
-
-        @Parameter(description = "Фильтр по ID курьера", example = "1")
-        @RequestParam(required = false)
-        Long courierId,
-
-        @Parameter(description = "Фильтр по статусу доставки")
-        @RequestParam(required = false)
-        DeliveryStatus status
+        @Valid DeliverySearchCriteria criteria
     ) {
-        List<DeliveryDto> deliveries = deliveryService.searchDeliveries(date, courierId, status);
+        List<DeliveryDto> deliveries = deliveryService.searchDeliveries(criteria);
         return ResponseEntity.ok(deliveries);
     }
 
